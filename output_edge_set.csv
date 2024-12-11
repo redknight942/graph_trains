@@ -1,0 +1,73 @@
+Origin,Destination
+Richmond,Berowra
+Emu Plains,Berowra
+Bankstown,Lidcombe
+Liverpool,Lidcombe
+Liverpool,City Circle
+Bankstown,Liverpool
+Lidcombe,Liverpool
+City Circle,Liverpool
+City Circle,Waterfall
+Bondi Junction,Waterfall
+Dubbo,Sydney (Central)
+Griffith,Sydney (Central)
+Olympic Park,Central
+Canberra,Sydney (Central)
+Scone,Newcastle Interchange
+Sydney (Central),Melbourne (Southern Cross)
+Newcastle Interchange,Scone
+Sydney (Central),Griffith
+Sydney (Central),Canberra
+Armidale,Sydney (Central)
+Dungog,Newcastle Interchange
+Lidcombe,Bankstown
+Moree,Sydney (Central)
+Sydney (Central),Armidale
+Central,Campbelltown and Goulburn
+Sydney (Central),Brisbane (Roma Street)
+Bankstown,Leppington
+Brisbane (Roma Street),Sydney (Central)
+City Circle,Macarthur
+Leppington,City Circle
+Central,Newcastle Interchange
+Melbourne (Southern Cross),Sydney (Central)
+City Circle,Leppington
+Macarthur,City Circle
+Sydney (Central),Dubbo
+City Circle,Cronulla
+North Shore,Hornsby and Berowra
+Central,Lithgow and Bathurst
+Bathurst and Lithgow,Central
+Richmond,Leppington
+Newcastle Interchange,Central
+Emu Plains,Leppington
+Leppington,Richmond
+Sydney (Central),Moree
+Leppington,Emu Plains
+City Circle,Campbelltown
+Campbelltown,Richmond
+Bondi Junction,Cronulla
+Goulburn,Campbelltown
+Waterfall,Bondi Junction
+Cronulla,Bondi Junction
+Newcastle Interchange,Dungog
+Bomaderry,Central and Bondi Junction
+City Circle,Parramatta
+Goulburn,Campbelltown and Central
+City,Richmond
+Liverpool,Bankstown
+Parramatta,City Circle
+Leppington,Bankstown
+City,Emu Plains
+Campbelltown,City Circle
+City,Hornsby and Berowra
+Berowra and Hornsby,City
+Bondi Junction and Central,Port Kembla
+Port Kembla,Central and Bondi Junction
+Berowra and Hornsby,North Shore
+Central,Olympic Park
+Olympic Park,Blacktown
+,
+Blacktown,Olympic Park
+Bondi Junction and Central,Bomaderry
+Campbelltown,Goulburn
