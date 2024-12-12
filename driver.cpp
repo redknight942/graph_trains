@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <utility>
-#include <algorithm> // Added for find_if
+#include <algorithm> 
 using namespace std;
 
 // Custom hash function for std::pair
@@ -32,8 +32,28 @@ private:
     unordered_map<int, string> nodeNames; // Map node indices to names
     vector<vector<int>> adjMatrix;       // Adjacency matrix
     unordered_set<pair<int, int>, pair_hash> edgeSet; // Edge set
+    int traversalCounter = 0;            // Counter for traversals
 
 public:
+    /**********************************************************************/
+    // getAdjMatrixSize- Get the size of the adjacency matrix
+    // arguments- none
+    // returns- size_t (number of nodes in the adjacency matrix)
+    /**********************************************************************/
+    size_t getAdjMatrixSize() const {
+        return adjMatrix.size();
+    }
+
+    /**********************************************************************/
+    // resetTraversalCounter- Reset the traversal counter to 0
+    // arguments- none
+    // returns- void
+    /**********************************************************************/
+    void resetTraversalCounter() {
+        traversalCounter = 0;
+        cout << "Traversal counter has been reset to 0." << endl;
+    }
+
     /**********************************************************************/
     // parseCSV- Parse a CSV file into a vector of rows
     // arguments- reference to filename
@@ -115,126 +135,144 @@ public:
     // returns- void
     /**********************************************************************/
     void loadFromEdgeSetCSV(const string& filename) {
-        ifstream file(filename);
-        if (!file.is_open()) {
-            cerr << "Error: Could not open edge set file." << endl;
-            return;
-        }
-
-        string line;
-        getline(file, line); // Skip header row
-
-        int index = 0;
-        while (getline(file, line)) {
-            stringstream lineStream(line);
-            string origin, destination;
-
-            // Read origin and destination
-            getline(lineStream, origin, ',');
-            getline(lineStream, destination, ',');
-
-            // Map node names to indices if not already mapped
-            auto originIt = find_if(nodeNames.begin(), nodeNames.end(),
-                                    [&](const auto& pair) { return pair.second == origin; });
-            if (originIt == nodeNames.end()) {
-                nodeNames[index++] = origin;
-            }
-
-            auto destIt = find_if(nodeNames.begin(), nodeNames.end(),
-                                  [&](const auto& pair) { return pair.second == destination; });
-            if (destIt == nodeNames.end()) {
-                nodeNames[index++] = destination;
-            }
-
-            // Add edge to edge set
-            int originIdx = find_if(nodeNames.begin(), nodeNames.end(), [&](const auto& pair) { return pair.second == origin; })->first;
-            int destIdx = find_if(nodeNames.begin(), nodeNames.end(), [&](const auto& pair) { return pair.second == destination; })->first;
-            edgeSet.emplace(originIdx, destIdx);
-        }
-
-        file.close();
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: Could not open edge set file." << endl;
+        return;
     }
+
+    string line;
+    getline(file, line); // Skip header row
+
+    int index = 0;
+    while (getline(file, line)) {
+        stringstream lineStream(line);
+        string origin, destination;
+
+        // Read origin and destination
+        getline(lineStream, origin, ',');
+        getline(lineStream, destination, ',');
+
+        // Map node names to indices if not already mapped
+        auto originIt = find_if(nodeNames.begin(), nodeNames.end(),
+                                [&](const auto& pair) { return pair.second == origin; });
+        if (originIt == nodeNames.end()) {
+            nodeNames[index++] = origin;
+        }
+
+        auto destIt = find_if(nodeNames.begin(), nodeNames.end(),
+                              [&](const auto& pair) { return pair.second == destination; });
+        if (destIt == nodeNames.end()) {
+            nodeNames[index++] = destination;
+        }
+
+        // Add edge to edge set
+        int originIdx = find_if(nodeNames.begin(), nodeNames.end(), [&](const auto& pair) { return pair.second == origin; })->first;
+        int destIdx = find_if(nodeNames.begin(), nodeNames.end(), [&](const auto& pair) { return pair.second == destination; })->first;
+        edgeSet.emplace(originIdx, destIdx);
+    }
+
+    // Initialize adjacency matrix after all nodes are added
+    adjMatrix.resize(index, vector<int>(index, 0));
+
+    // Populate adjacency matrix based on edge set
+    for (const auto& edge : edgeSet) {
+        adjMatrix[edge.first][edge.second] = 1;
+        adjMatrix[edge.second][edge.first] = 1; // Assuming undirected graph
+    }
+
+    file.close();
+    cout << "Adjacency matrix size: " << adjMatrix.size() << "x" << adjMatrix[0].size() << endl;
+    }   
+
 
     /**********************************************************************/
     // bfsTraversal- Perform Breadth-First Search (BFS) on the graph
     // arguments- starting node index
-    // returns- void
+    // returns- int (number of traversed nodes)
     /**********************************************************************/
-    void bfsTraversal(int startNode) {
-        vector<bool> visited(adjMatrix.size(), false);
-        queue<int> q;
+    int bfsTraversal(int startNode) {
+    vector<bool> visited(adjMatrix.size(), false);
+    queue<int> q;
+    traversalCounter = 0;
 
-        visited[startNode] = true;
-        q.push(startNode);
+    visited[startNode] = true;
+    q.push(startNode);
 
-        cout << "BFS Traversal: ";
+    cout << "BFS Traversal: ";
 
-        while (!q.empty()) {
-            int node = q.front();
-            q.pop();
-            cout << nodeNames[node] << " ";
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        cout << nodeNames[node] << " ";
+        traversalCounter++;
 
-            for (size_t i = 0; i < adjMatrix[node].size(); ++i) {
-                if (adjMatrix[node][i] == 1 && !visited[i]) {
-                    visited[i] = true;
-                    q.push(i);
-                }
+        for (size_t i = 0; i < adjMatrix[node].size(); ++i) {
+            if (adjMatrix[node][i] == 1 && !visited[i]) {
+                visited[i] = true;
+                q.push(i);
             }
         }
-
-        cout << endl;
     }
+
+    cout << endl;
+    return traversalCounter;
+}
+
 
     /**********************************************************************/
     // dfsTraversal- Perform Depth-First Search (DFS) on the graph
     // arguments- starting node index
-    // returns- void
+    // returns- int (number of traversed nodes)
     /**********************************************************************/
-    void dfsTraversal(int startNode) {
-        vector<bool> visited(adjMatrix.size(), false);
-        stack<int> s;
+    int dfsTraversal(int startNode) {
+    vector<bool> visited(adjMatrix.size(), false);
+    stack<int> s;
+    traversalCounter = 0;
 
-        s.push(startNode);
+    s.push(startNode);
 
-        cout << "DFS Traversal: ";
+    cout << "DFS Traversal: ";
 
-        while (!s.empty()) {
-            int node = s.top();
-            s.pop();
+    while (!s.empty()) {
+        int node = s.top();
+        s.pop();
 
-            if (!visited[node]) {
-                visited[node] = true;
-                cout << nodeNames[node] << " ";
-            }
-
-            for (size_t i = 0; i < adjMatrix[node].size(); ++i) {
-                if (adjMatrix[node][i] == 1 && !visited[i]) {
-                    s.push(i);
-                }
-            }
+        if (!visited[node]) {
+            visited[node] = true;
+            cout << nodeNames[node] << " ";
+            traversalCounter++;
         }
 
-        cout << endl;
+        for (size_t i = 0; i < adjMatrix[node].size(); ++i) {
+            if (adjMatrix[node][i] == 1 && !visited[i]) {
+                s.push(i);
+            }
+        }
     }
 
+    cout << endl;
+    return traversalCounter;
+    }
+
+
     /**********************************************************************/
-    // printGraph- Print adjacency matrix and edge set
-    // arguments- none
+    // writeIterationToCSV- Write counter from traversal to CSV
+    // arguments- reference to filename, counter value, traversal name
     // returns- void
     /**********************************************************************/
-    void printGraph() {
-        cout << "Adjacency Matrix:" << endl;
-        for (size_t i = 0; i < adjMatrix.size(); ++i) {
-            for (size_t j = 0; j < adjMatrix[i].size(); ++j) {
-                cout << adjMatrix[i][j] << " ";
-            }
-            cout << endl;
+    void writeIterationToCSV(const string& filename, int counter, string name) {
+        ofstream outFile;
+        outFile.open(filename, std::ios_base::app);
+        if (!outFile.is_open()) {
+            cerr << "Error: Could not write to file." << endl;
+            return;
         }
 
-        cout << "\nEdge Set:" << endl;
-        for (const auto& edge : edgeSet) {
-            cout << "(" << nodeNames[edge.first] << ", " << nodeNames[edge.second] << ")" << endl;
-        }
+        cout << "Writing iterations to CSV" << endl;
+
+        outFile << name << "," << counter << endl;
+        outFile.close();
     }
 
     /**********************************************************************/
@@ -287,6 +325,26 @@ public:
 
         outFile.close();
     }
+
+    /**********************************************************************/
+    // printGraph- Print adjacency matrix and edge set
+    // arguments- none
+    // returns- void
+    /**********************************************************************/
+    void printGraph() {
+        cout << "Adjacency Matrix:" << endl;
+        for (size_t i = 0; i < adjMatrix.size(); ++i) {
+            for (size_t j = 0; j < adjMatrix[i].size(); ++j) {
+                cout << adjMatrix[i][j] << " ";
+            }
+            cout << endl;
+        }
+
+        cout << "\nEdge Set:" << endl;
+        for (const auto& edge : edgeSet) {
+            cout << "(" << nodeNames[edge.first] << ", " << nodeNames[edge.second] << ")" << endl;
+        }
+    }
 };
 
 int main() {
@@ -302,27 +360,50 @@ int main() {
     } else if (choice == 2) {
         graph.loadFromEdgeSetCSV("edge_set.csv");
         graph.writeEdgeSetToCSV("output_edge_set.csv");
+        cout << "Adjacency Matrix Size: " << graph.getAdjMatrixSize() << endl;
     } else {
         cerr << "Invalid choice." << endl;
         return 1;
     }
 
-    cout << "Choose traversal method (1: BFS, 2: DFS): ";
-    cin >> choice;
-
-    int startNode = 0;
-    cout << "Enter the starting node index (0-based): ";
-    cin >> startNode;
-
-    if (choice == 1) {
-        graph.bfsTraversal(startNode);
-    } else if (choice == 2) {
-        graph.dfsTraversal(startNode);
-    } else {
-        cerr << "Invalid choice." << endl;
-    }
-
+    cout << "Graph loaded successfully.\n";
     graph.printGraph();
+
+    while (true) {
+        cout << "Choose traversal method (1: BFS, 2: DFS, 3: Reset Counter, 4: Exit): ";
+        cin >> choice;
+
+        if (choice == 1 || choice == 2) {
+            int startNode;
+            cout << "Enter the starting node index (0-based): ";
+            cin >> startNode;
+
+            if (startNode < 0 || startNode >= graph.getAdjMatrixSize()) {
+                cerr << "Invalid start node. Please ensure it is within the range 0 to " << graph.getAdjMatrixSize() - 1 << "." << endl;
+                continue;
+            }
+
+            int counter = 0;
+            string traversal_name;
+
+            if (choice == 1) {
+                counter = graph.bfsTraversal(startNode);
+                traversal_name = "BFS";
+            } else {
+                counter = graph.dfsTraversal(startNode);
+                traversal_name = "DFS";
+            }
+
+            cout << "Counter: " << counter << endl;
+            graph.writeIterationToCSV("output_viz.csv", counter, traversal_name);
+        } else if (choice == 3) {
+            graph.resetTraversalCounter();
+        } else if (choice == 4) {
+            break;
+        } else {
+            cerr << "Invalid choice." << endl;
+        }
+    }
 
     return 0;
 }
