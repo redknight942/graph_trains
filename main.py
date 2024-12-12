@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 import re
 
-# Load the Sydney Trains dataset
-sydney_trains_file_path = 'sydneytrains.csv'  # Replace with the actual file path
+# Load Sydney Trains dataset
+sydney_trains_file_path = 'sydneytrains.csv'  
 sydney_trains_data = pd.read_csv("datasets/sydneytrains.csv")
 
-# Ensure the relevant column 'route_long_name' exists
+# Ensure relevant column 'route_long_name' exists
 if 'route_long_name' in sydney_trains_data.columns:
     # Split the column into three new columns: origin, destination, and waypoint
     sydney_trains_data[['origin', 'destination', 'waypoint']] = sydney_trains_data['route_long_name'].str.extract(
@@ -16,7 +16,7 @@ if 'route_long_name' in sydney_trains_data.columns:
     # Remove rows where 'route_long_name' is empty or null
     cleaned_sydney_trains_data = sydney_trains_data.dropna(subset=['route_long_name']).reset_index(drop=True)
 
-    # Save the cleaned dataset to a new CSV file
+    # Save the cleaned dataset to a new CSV
     cleaned_sydney_trains_data.to_csv('cleaned_sydney_trains.csv', index=False)
 
     # Create Edge Set
